@@ -387,10 +387,10 @@ class ClusterHandler {
 
 		island.simulation
 			.nodes(island.rooms)
-			.force("link", d3.forceLink(island.links)
-				.strength(x => x.strength * .2)
-				.distance(x => x.source.aabb.radius + x.target.aabb.radius)
-			)
+			//.force("link", d3.forceLink(island.links)
+			//	.strength(x => x.strength * .2)
+			//	.distance(x => x.source.aabb.radius + x.target.aabb.radius)
+			//)
 			.force("keepApart", d3.forceCollide().radius(x => x.aabb.radius).strength(.3))
 			// .force("keepApart", d3.forceManyBody()
 			// 	.strength(-30)
@@ -398,12 +398,12 @@ class ClusterHandler {
 			// 	.distanceMax(200)
 			// )
 			// .force("placement", ClusterHandler.forceParentRelative().strength(.03))
-			.force("noExplode", ClusterHandler.forcePreventExplosions())
+			//.force("noExplode", ClusterHandler.forcePreventExplosions())
 			.force("doorAlign", ClusterHandler.forceDoorAlignment(island.links).strengths(.5, .6))
-			.force("keepInside", ClusterHandler.forceKeepInsideCircle(island.radius))
-			.force("a1", null)
-			.force("keepCentered", d3.forceCenter().strength(.01))
-			.force("hubTweaks", ClusterHandler.forceHubTweaks(island.hub))
+			//.force("keepInside", ClusterHandler.forceKeepInsideCircle(island.radius))
+			//.force("a1", null)
+			//.force("keepCentered", d3.forceCenter().strength(.01))
+			//.force("hubTweaks", ClusterHandler.forceHubTweaks(island.hub))
 			.alphaDecay(.005)
 			.alphaMin(.09)
 
@@ -527,7 +527,7 @@ class ClusterHandler {
 	/** Tries to push nodes so they line up with the correct side fora doorway. */
 	static forceDoorAlignment(links) {
 		var alignStrength = 1
-		var sideShiftStrength = .1
+		var sideShiftStrength = 4
 
 		var ret = alpha => {
 			for (let i = 0, len = links.length; i < len; i++) {
@@ -541,20 +541,28 @@ class ClusterHandler {
 
 					switch (side) {
 						case "top":
-							room.vx += dx * alignStrength * alpha
-							if (dy > 0) room.vy += dy * sideShiftStrength * alpha
+							if(dy < 0)
+								room.vx += dx * alignStrength * alpha
+							else
+								room.vy += dy * sideShiftStrength * alpha
 							break
 						case "bot":
-							room.vx += dx * alignStrength * alpha
-							if (dy < 0) room.vy -= -dy * sideShiftStrength * alpha
+							if (dy > 0)
+								room.vx += dx * alignStrength * alpha
+							else
+								room.vy -= -dy * sideShiftStrength * alpha
 							break
 						case "right":
-							room.vy += dy * alignStrength * alpha
-							if (dx < 0) room.vx -= -dx * sideShiftStrength * alpha
+							if (dx > 0)
+								room.vy += dy * alignStrength * alpha
+							else
+								room.vx -= -dx * sideShiftStrength * alpha
 							break
 						case "left":
-							room.vy += dy * alignStrength * alpha
-							if (dx > 0) room.vx += dx * sideShiftStrength * alpha
+							if (dx < 0)
+								room.vy += dy * alignStrength * alpha
+							else
+								room.vx += dx * sideShiftStrength * alpha
 							break
 					}
 
